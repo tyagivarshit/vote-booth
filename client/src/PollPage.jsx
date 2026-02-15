@@ -3,7 +3,8 @@ import { useParams } from "react-router-dom"
 import axios from "axios"
 import { io } from "socket.io-client"
 
-const socket = io("http://localhost:5000")
+const API_URL = "https://web-poll-new.onrender.com"
+const socket = io(API_URL)
 
 function PollPage() {
   const { id } = useParams()
@@ -12,13 +13,13 @@ function PollPage() {
   const [voted, setVoted] = useState(false)
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/poll/${id}`)
+    axios.get(`${API_URL}/api/poll/${id}`)
       .then(res => setPoll(res.data))
 
     socket.emit("joinPoll", id)
 
     socket.on("update", (options) => {
-      setPoll(prev => ({ ...prev, options }))
+      setPoll(prev => prev ? { ...prev, options } : prev)
     })
 
     socket.on("alreadyVoted", () => {
@@ -30,9 +31,8 @@ function PollPage() {
       socket.off("update")
       socket.off("alreadyVoted")
     }
-  }, [])
+  }, [id])
 
-  // Generate stable voter ID once
   const getVoterId = () => {
     let voterId = localStorage.getItem("voterId")
     if (!voterId) {
@@ -58,7 +58,6 @@ function PollPage() {
   if (!poll) return <div className="container">Loading...</div>
 
   const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes, 0)
-
   const leaderboard = [...poll.options].sort((a, b) => b.votes - a.votes)
 
   return (
@@ -71,15 +70,7 @@ function PollPage() {
           : 0
 
         return (
-          <div
-            key={index}
-            style={{
-              marginTop: "15px",
-              padding: "12px",
-              border: "1px solid #ddd",
-              borderRadius: "6px"
-            }}
-          >
+          <div key={index} style={{ marginTop: "15px" }}>
             <label>
               <input
                 type="radio"
@@ -91,22 +82,18 @@ function PollPage() {
               {opt.text}
             </label>
 
-            <div
-              style={{
-                height: "6px",
-                background: "#eee",
-                borderRadius: "4px",
-                marginTop: "8px"
-              }}
-            >
-              <div
-                style={{
-                  width: `${percentage}%`,
-                  height: "100%",
-                  background: "#111",
-                  borderRadius: "4px"
-                }}
-              />
+            <div style={{
+              height: "6px",
+              background: "#eee",
+              borderRadius: "4px",
+              marginTop: "8px"
+            }}>
+              <div style={{
+                width: `${percentage}%`,
+                height: "100%",
+                background: "#111",
+                borderRadius: "4px"
+              }} />
             </div>
 
             <small>
@@ -124,27 +111,21 @@ function PollPage() {
         {voted ? "Vote Submitted" : "Submit Vote"}
       </button>
 
-      {/* Leaderboard */}
-      <div
-        style={{
-          marginTop: "40px",
-          padding: "20px",
-          background: "#f5f5f5",
-          borderRadius: "8px"
-        }}
-      >
+      <div style={{
+        marginTop: "40px",
+        padding: "20px",
+        background: "#f5f5f5",
+        borderRadius: "8px"
+      }}>
         <h3>Leaderboard</h3>
 
         {leaderboard.map((item, index) => (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "6px 0",
-              fontWeight: index === 0 ? "600" : "400"
-            }}
-          >
+          <div key={index} style={{
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "6px 0",
+            fontWeight: index === 0 ? "600" : "400"
+          }}>
             <span>
               {index === 0 ? "🥇 " :
                index === 1 ? "🥈 " :

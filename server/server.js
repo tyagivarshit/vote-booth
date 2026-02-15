@@ -10,17 +10,29 @@ dotenv.config()
 
 const app = express()
 const server = createServer(app)
+
 const io = new Server(server, {
-  cors: { origin: "*" }
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 })
 
 app.use(cors())
 app.use(express.json())
 
-// MongoDB Connect
-mongoose.connect(process.env.MONGO_URL)
-  .then(() => console.log("MongoDB Connected"))
-  .catch(err => console.log(err))
+// ================= SAFE MONGO CONNECT =================
+
+const mongoUri = process.env.MONGO_URL
+
+if (!mongoUri) {
+  console.error("❌ MONGO_URL is missing")
+  process.exit(1)
+}
+
+mongoose.connect(mongoUri)
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.log("❌ Mongo Error:", err.message))
 
 // ================= MODEL =================
 
@@ -33,7 +45,7 @@ const pollSchema = new mongoose.Schema({
       votes: { type: Number, default: 0 }
     }
   ],
-  voters: [String] // store IPs
+  voters: [String]
 })
 
 const Poll = mongoose.model("Poll", pollSchema)
@@ -43,13 +55,13 @@ const Poll = mongoose.model("Poll", pollSchema)
 app.post("/api/create", async (req, res) => {
   const { question, options } = req.body
 
-  if (!question || options.length < 2) {
+  if (!question || !options || options.length < 2) {
     return res.status(400).json({ message: "Minimum 2 options required" })
   }
 
   const pollId = nanoid(8)
 
-  const newPoll = await Poll.create({
+  await Poll.create({
     pollId,
     question,
     options: options.map(opt => ({ text: opt }))
@@ -76,18 +88,18 @@ io.on("connection", (socket) => {
     socket.join(pollId)
   })
 
-  socket.on("vote", async ({ pollId, optionIndex, userIp }) => {
+  socket.on("vote", async ({ pollId, optionIndex, voterId }) => {
     const poll = await Poll.findOne({ pollId })
-
     if (!poll) return
 
-    // Anti-abuse #1: IP restriction
-    if (poll.voters.includes(userIp)) {
+    // Prevent multiple voting
+    if (poll.voters.includes(voterId)) {
+      socket.emit("alreadyVoted")
       return
     }
 
     poll.options[optionIndex].votes += 1
-    poll.voters.push(userIp)
+    poll.voters.push(voterId)
 
     await poll.save()
 
@@ -95,6 +107,10 @@ io.on("connection", (socket) => {
   })
 })
 
-server.listen(5000, () => {
-  console.log("Server running on 5000")
+// ================= PORT FIX =================
+
+const PORT = process.env.PORT || 5000
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`)
 })

@@ -1,6 +1,8 @@
 import { useState } from "react"
 import axios from "axios"
 
+const API_URL = "https://web-poll-new.onrender.com"
+
 function CreatePoll() {
   const [question, setQuestion] = useState("")
   const [options, setOptions] = useState(["", ""])
@@ -28,7 +30,7 @@ function CreatePoll() {
     try {
       setLoading(true)
 
-      const res = await axios.post("http://localhost:5000/api/create", {
+      const res = await axios.post(`${API_URL}/api/create`, {
         question,
         options: validOptions
       })
@@ -79,7 +81,6 @@ function CreatePoll() {
         />
       ))}
 
-      {/* Buttons Row */}
       <div className="button-row">
         <button
           className="secondary"
@@ -94,7 +95,6 @@ function CreatePoll() {
         </button>
       </div>
 
-      {/* Generated Link Section */}
       {generatedLink && (
         <>
           <div className="link-box">
