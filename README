@@ -1,0 +1,17 @@
+Vote Booth – Real-Time Polling Web App
+
+Vote Booth is a real-time polling web application that allows users to create a poll, generate a shareable link, and collect votes from multiple users while displaying live results. The goal of the project was to build a working, reliable product with persistence, fairness controls, and real-time updates. The application is fully deployed and publicly accessible.
+
+The system is built using a React (Vite) frontend and a Node.js + Express backend. MongoDB Atlas is used for persistent data storage, and Socket.io enables real-time vote updates across all connected users. The frontend is deployed on Vercel, and the backend is hosted on Render.
+
+When a user creates a poll, they must provide a question and at least two options. A unique poll ID is generated using nanoid, and a shareable link is created in the format /poll/:pollId. Anyone with this link can open the poll, view the question, and vote for one option. Once a vote is submitted, all users currently viewing that poll see the results update instantly without refreshing the page.
+
+To reduce abusive or repeat voting, I implemented two fairness mechanisms. First, each user is assigned a unique voter ID using crypto.randomUUID() which is stored in localStorage. This ID is sent to the backend when voting. The backend maintains a list of voter IDs for each poll and prevents duplicate voting from the same ID. This stops multiple votes from the same browser session and prevents vote spamming through page refreshes. Second, vote validation is enforced on the backend. Even if someone tries to manipulate frontend code or directly call the API, the backend verifies that the poll exists, the option index is valid, and the voter has not already voted. This ensures fairness is not dependent only on frontend logic.
+
+Several edge cases were handled to ensure stability and correctness. Poll creation is blocked if fewer than two valid options are provided or if the question is empty. Invalid poll IDs return a proper 404 response. Multiple vote attempts are rejected. Poll data persists in MongoDB, so refreshing the page does not remove polls or votes. Direct URL access on Vercel is handled using a rewrite configuration to ensure React Router works correctly without server-side routing errors.
+
+There are some known limitations in the current implementation. Since voting is anonymous and based on localStorage, users can potentially vote again by clearing browser storage, using incognito mode, or switching devices. There is currently no authentication system, rate limiting, or IP-based blocking. Additionally, the backend is hosted on a free Render plan, which may cause a short cold-start delay after inactivity.
+
+If I were to improve this project further, I would add user authentication (JWT or OAuth), implement rate limiting and IP-based protection, introduce poll expiration times, and build an admin dashboard for managing polls. I would also add analytics such as vote trends and total views, improve mobile responsiveness, and possibly connect a custom domain.
+
+Overall, this project demonstrates full-stack development skills, real-time communication using WebSockets, backend validation for fairness, production deployment, and handling of real-world routing and hosting issues. The focus was on building a stable, functional, and deployable product rather than just a prototype.
