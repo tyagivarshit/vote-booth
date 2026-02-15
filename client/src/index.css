@@ -1,0 +1,89 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f8f8;
+  color: #111;
+}
+
+.container {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+h1, h2 {
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  display: block;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 6px;
+  border: none;
+  background: #111;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button.secondary {
+  background: #eee;
+  color: #111;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.link-box {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f1f1f1;
+  border-radius: 6px;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.copy-btn {
+  margin-top: 10px;
+  background: #111;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button-row button {
+  flex: 1;
+}
+
+.link-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.link-actions button {
+  flex: 1;
+}
