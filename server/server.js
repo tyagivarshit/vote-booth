@@ -26,13 +26,13 @@ app.use(express.json())
 const mongoUri = process.env.MONGO_URL
 
 if (!mongoUri) {
-  console.error("❌ MONGO_URL is missing")
+  console.error(" MONGO_URL is missing")
   process.exit(1)
 }
 
 mongoose.connect(mongoUri)
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch(err => console.log("❌ Mongo Error:", err.message))
+  .then(() => console.log(" MongoDB Connected"))
+  .catch(err => console.log(" Mongo Error:", err.message))
 
 // ================= MODEL =================
 
@@ -112,5 +112,5 @@ io.on("connection", (socket) => {
 const PORT = process.env.PORT || 5000
 
 server.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`)
+  console.log(` Server running on port ${PORT}`)
 })
